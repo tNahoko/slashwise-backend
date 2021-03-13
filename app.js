@@ -1,6 +1,9 @@
 const paypal = require('paypal-rest-sdk');
 const express = require('express');
 const app = express();
+const cors = require("cors");
+
+const PORT = process.env.PORT || 8000;
 
 app.use(express.urlencoded({ extended:false }));
 app.use(express.json());
@@ -18,7 +21,7 @@ app.post('/pay', (req, res) => {
   console.log(req.body);
   amount = req.body.price;
 
-  var create_payment_json = {
+  const create_payment_json = {
     "intent": "sale",
     "payer": {
         "payment_method": "paypal"
@@ -61,7 +64,7 @@ app.post('/pay', (req, res) => {
 })
 
 app.get('/success', (req, res) => {
-  var execute_payment_json = {
+  const execute_payment_json = {
     "payer_id": req.query.PayerID,
     "transactions": [{
         "amount": {
@@ -71,7 +74,7 @@ app.get('/success', (req, res) => {
     }]
   };
 
-  var paymentId = req.query.paymentId;
+  const paymentId = req.query.paymentId;
 
   paypal.payment.execute(paymentId, execute_payment_json, (error, payment) => {
       if (error) {
@@ -84,7 +87,6 @@ app.get('/success', (req, res) => {
   });
 });
 
-app.listen(8000, '127.0.0.1', (req, res) => 
-{
-  console.log('server started')
+app.listen(PORT, (req, res) => {
+  console.log(`server started on port ${PORT}`)
 });
