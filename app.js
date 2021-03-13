@@ -3,6 +3,10 @@ const express = require('express');
 const app = express();
 const cors = require("cors");
 
+const axios = require('axios');
+const uniqid = require('uniqid');
+const http = require('https');
+
 const PORT = process.env.PORT || 8000;
 
 app.use(express.urlencoded({ extended:false }));
@@ -16,6 +20,7 @@ paypal.configure({
   'client_secret': 'EK8VQRKHFrPxRjf8Xd5F7IObwZhQnG9pueQ47kJphfTsTYymLaMUZ7VoxJNQHPcas6JwHEfSoDirtcaL'
 });
 
+// Payment
 app.post('/pay', (req, res) => {
 
   console.log(req.body);
@@ -86,6 +91,8 @@ app.get('/success', (req, res) => {
       }
   });
 });
+
+// Payout
 
 app.listen(PORT, (req, res) => {
   console.log(`server started on port ${PORT}`)

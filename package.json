@@ -18,8 +18,10 @@
   },
   "homepage": "https://github.com/tNahoko/slashwise-backend#readme",
   "dependencies": {
+    "axios": "^0.21.1",
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "paypal-rest-sdk": "^1.8.1"
+    "paypal-rest-sdk": "^1.8.1",
+    "uniqid": "^5.3.0"
   }
 }
