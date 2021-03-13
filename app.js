@@ -1,4 +1,4 @@
-const paypal = require('paypal-rest-sdk');
+const paypal = require('./');
 const express = require('express');
 const app = express();
 const cors = require("cors");
@@ -13,12 +13,6 @@ app.use(express.urlencoded({ extended:false }));
 app.use(express.json());
 
 let amount;
-
-paypal.configure({
-  'mode': 'sandbox', //sandbox or live
-  'client_id': 'AYlmUFKawzpk_ud8eL_Fly4_UxgQF8E1JIgShw3EjD0gzK5l0MSyuO-GNgfw6fDQhAbOe6MSIfnmZdxs',
-  'client_secret': 'EK8VQRKHFrPxRjf8Xd5F7IObwZhQnG9pueQ47kJphfTsTYymLaMUZ7VoxJNQHPcas6JwHEfSoDirtcaL'
-});
 
 // Payment
 app.post('/pay', (req, res) => {
