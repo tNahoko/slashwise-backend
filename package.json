@@ -1,0 +1,23 @@
+{
+  "name": "slashwise-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tNahoko/slashwise-backend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tNahoko/slashwise-backend/issues"
+  },
+  "homepage": "https://github.com/tNahoko/slashwise-backend#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "paypal-rest-sdk": "^1.8.1"
+  }
+}
