@@ -1,11 +1,7 @@
-const paypal = require('./');
+const paypal = require('paypal-rest-sdk');
 const express = require('express');
 const app = express();
 const cors = require("cors");
-
-const axios = require('axios');
-const uniqid = require('uniqid');
-const http = require('https');
 
 const PORT = process.env.PORT || 8000;
 
@@ -14,7 +10,12 @@ app.use(express.json());
 
 let amount;
 
-// Payment
+paypal.configure({
+  'mode': 'sandbox', //sandbox or live
+  'client_id': 'AYlmUFKawzpk_ud8eL_Fly4_UxgQF8E1JIgShw3EjD0gzK5l0MSyuO-GNgfw6fDQhAbOe6MSIfnmZdxs',
+  'client_secret': 'EK8VQRKHFrPxRjf8Xd5F7IObwZhQnG9pueQ47kJphfTsTYymLaMUZ7VoxJNQHPcas6JwHEfSoDirtcaL'
+});
+
 app.post('/pay', (req, res) => {
 
   console.log(req.body);
@@ -85,8 +86,6 @@ app.get('/success', (req, res) => {
       }
   });
 });
-
-// Payout
 
 app.listen(PORT, (req, res) => {
   console.log(`server started on port ${PORT}`)
