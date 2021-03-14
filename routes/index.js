@@ -6,6 +6,7 @@ const paypal_controller = require('../controllers/paypal.controller');
 module.exports = function(){
 
   router.get('/paypal-token', paypal_controller.generarTokenPaypal);
+  router.post('/paypal-new-checkout', paypal_controller.generarTokenPaypal);
 
   return router;
 }
