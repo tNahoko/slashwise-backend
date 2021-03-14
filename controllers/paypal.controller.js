@@ -52,6 +52,69 @@ const controller = {
         });
       }
     })();
+  },
+
+  generarPayoutPaypal: async function (req, res) {
+
+    let params = req.body;
+    let modo = params.modo;
+    let batch_code = uniqid();
+
+    const options = {
+      "method" : "POST",
+      "hostname" : "api.sandbox.paypal.com",
+      "port": null,
+      "path": "/v1/payments/payouts",
+      "headers": {
+        "accept": "application/json",
+        "authorization": "Bearer A21AAK3x_ptpRbM5jZUxO1QRXmC4Tk8VRt0Vwsb48TZSDdpd9piZ0TRYrTAqfCvb7XNayvXWXL2ut7spnyfM0-rIWoGc1PJWg",
+        "content-type": "application/json"
+      }
+    };
+
+    const data = await http.request(options, function (res) {
+      let chunks = [];
+
+      res.on("data", function (chunk) {
+        chunks.push(chunk);
+      });
+
+      res.on("end", function(){
+        let body = Buffer.concat(chunks);
+        console.log(body.toString);
+      })
+    });
+
+    console.log(modo);
+
+    if (modo == 'EMAIL') {
+      let email = params.email;
+      let monto_a_cobrar = params.value;
+
+      data.write(JSON.stringify({ 
+        sender_batch_header:
+        { 
+          sender_batch_id : batch_code,
+          recipient_type: 'EMAIL',
+          email_subject : 'Pago realizado',
+        },
+        items: [{
+          amount: { 
+            value: monto_a_cobrar, 
+            currency: "USD" 
+          },
+          receiver: email,
+          note: 'Pago desde el backend con node, token working'
+        }]
+      }));
+      
+      data.end();
+
+      return res.status(200).send({
+        status : 'success',
+        message: 'Pago realizado a : ' + email
+      });
+    }
 
   }
 
