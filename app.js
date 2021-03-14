@@ -1,14 +1,31 @@
 const paypal = require('paypal-rest-sdk');
 const express = require('express');
+const routes = require('./routes');
+const path = require('path');
+
 const app = express();
+
 const cors = require("cors");
+const axios = require('axios');
+const uniqid = require('uniqid');
+const http = require('https');
+
+let amount;
 
 const PORT = process.env.PORT || 8000;
 
 app.use(express.urlencoded({ extended:false }));
 app.use(express.json());
 
-let amount;
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Authorization, X-API-KEY, Origin, X-Requested-With, Content-Type'); //something's missing...
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+    res.header('Allow', 'GET, POST, OPTIONS, PUT, DELETE');
+    next();
+})
+
+app.use('/api/paypal', routes());
 
 paypal.configure({
   'mode': 'sandbox', //sandbox or live
