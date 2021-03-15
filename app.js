@@ -2,6 +2,7 @@ const paypal = require('paypal-rest-sdk');
 const express = require('express');
 const routes = require('./routes');
 const path = require('path');
+const payoutController = require("./controllers/paypal.controller");
 
 const app = express();
 
@@ -37,6 +38,7 @@ paypal.configure({
 app.post('/pay', (req, res) => {
 
   amount = req.body.price;
+  email = req.body.email;
 
   const create_payment_json = {
     "intent": "sale",
@@ -91,18 +93,21 @@ app.get('/success', (req, res) => {
 
   const paymentId = req.query.paymentId;
 
-  paypal.payment.execute(paymentId, execute_payment_json, (error, payment) => {
+  paypal.payment.execute(paymentId, execute_payment_json, async (error, payment) => {
     
       if (error) {
           console.log(error.response);
           throw error;
       } else {
-          console.log("Get Payment Response");
-          const response = JSON.stringify(payment);
-          const email_receiver = response.payer_info.email;
+          const response = payment;
+          const receiverEmail = response.payer.payer_info.email;
 
-          // token
-          // payout
+          const tokenDetails = await payoutController.generarTokenPaypal();
+          const payoutDetails = await payoutController.generarPayoutPaypal(tokenDetails.access_token, receiverEmail, 150);
+
+          console.log(payoutDetails);
+
+          res.sendStatus(200);
       }
   });
 });
