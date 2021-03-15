@@ -16,6 +16,7 @@ const PORT = process.env.PORT || 8000;
 
 app.use(express.urlencoded({ extended:false }));
 app.use(express.json());
+app.use(cors());
 
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
@@ -35,7 +36,6 @@ paypal.configure({
 
 app.post('/pay', (req, res) => {
 
-  console.log(req.body);
   amount = req.body.price;
 
   const create_payment_json = {
@@ -44,7 +44,7 @@ app.post('/pay', (req, res) => {
         "payment_method": "paypal"
     },
     "redirect_urls": {
-        "return_url": "https://slashwise-backend.herokuapp.com/success",
+        "return_url": "http://10.0.2.2:8000/success",
         "cancel_url": "http://cancel.url"
     },
     "transactions": [{
@@ -69,8 +69,6 @@ app.post('/pay', (req, res) => {
     if (error) {
         throw error;
     } else {
-        console.log("Create Payment Response");
-        console.log(payment);
         for (let i = 0; i < payment.links.length; i++) {
           if (payment.links[i].rel === "approval_url") {
             res.redirect(payment.links[i].href);
@@ -94,12 +92,17 @@ app.get('/success', (req, res) => {
   const paymentId = req.query.paymentId;
 
   paypal.payment.execute(paymentId, execute_payment_json, (error, payment) => {
+    
       if (error) {
           console.log(error.response);
           throw error;
       } else {
           console.log("Get Payment Response");
-          console.log(JSON.stringify(payment));
+          const response = JSON.stringify(payment);
+          const email_receiver = response.payer_info.email;
+
+          // token
+          // payout
       }
   });
 });

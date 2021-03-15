@@ -67,7 +67,7 @@ const controller = {
       "path": "/v1/payments/payouts",
       "headers": {
         "accept": "application/json",
-        "authorization": "Bearer A21AAK3x_ptpRbM5jZUxO1QRXmC4Tk8VRt0Vwsb48TZSDdpd9piZ0TRYrTAqfCvb7XNayvXWXL2ut7spnyfM0-rIWoGc1PJWg",
+        "authorization": "Bearer A21AAKHcUN0vNear6P5cFcEXQ7j6wzJOqLYrO8G97Xt1d4-ZW1jWCtveQVz_AkC81Xwdtkj61G_qAThMPD5OqhfYCHeqhAGSg",
         "content-type": "application/json"
       }
     };
@@ -81,11 +81,8 @@ const controller = {
 
       res.on("end", function(){
         let body = Buffer.concat(chunks);
-        console.log(body.toString);
       })
     });
-
-    console.log(modo);
 
     if (modo == 'EMAIL') {
       let email = params.email;
