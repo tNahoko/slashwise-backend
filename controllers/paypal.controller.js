@@ -7,57 +7,63 @@ const http = require('https');
 
 const controller = {
 
-  generarTokenPaypal: async function(req, res){
+  generarTokenPaypal: async function(){
 
     console.log('Ruta activada');
 
     let username = 'AYlmUFKawzpk_ud8eL_Fly4_UxgQF8E1JIgShw3EjD0gzK5l0MSyuO-GNgfw6fDQhAbOe6MSIfnmZdxs';
     let password = 'EK8VQRKHFrPxRjf8Xd5F7IObwZhQnG9pueQ47kJphfTsTYymLaMUZ7VoxJNQHPcas6JwHEfSoDirtcaL';
 
-    (async () => {
+    try {
+      const { data: { access_token, token_type } } = await axios({
+        url: 'https://api.sandbox.paypal.com/v1/oauth2/token',
+        method: 'post',
+        headers: {
+          Accept: 'application/json',
+          'Accept-Language': 'en-US',
+          'content-type': 'application/x-www-form-urlencoded',
+        },
+        auth: {
+          username: username,
+          password: password,
+        },
+        params: {
+          grant_type: 'client_credentials',
+        },
 
-      try {
-        const { data: { access_token, token_type } } = await axios({
-          url: 'https://api.sandbox.paypal.com/v1/oauth2/token',
-          method: 'post',
-          headers: {
-            Accept: 'application/json',
-            'Accept-Language': 'en-US',
-            'content-type': 'application/x-www-form-urlencoded',
-          },
-          auth: {
-            username: username,
-            password: password,
-          },
-          params: {
-            grant_type: 'client_credentials',
-          },
+      });
 
-        });
+      return {
+        status: "success",
+        access_token: access_token,
+        token_type: token_type
+      };
 
-        return res.status(200).send({
-          status : 'success',
-          message: 'Su token es:',
-          access_token : access_token,
-          token_type: token_type
-        });
+      // return res.status(200).send({
+      //   status : 'success',
+      //   message: 'Su token es:',
+      //   access_token : access_token,
+      //   token_type: token_type
+      // });
 
-      } catch (error) {
+    } catch (error) {
 
-        console.log('error: ', error);
+      console.log('error: ', error);
 
-        return res.status(400).send({
-          status : 'error',
-          message : 'Error de paypal revisar logs'
-        });
-      }
-    })();
+      // return res.status(400).send({
+      //   status : 'error',
+      //   message : 'Error de paypal revisar logs'
+      // });
+
+      return {
+        status: "error"
+      };
+    }
   },
 
-  generarPayoutPaypal: async function (req, res) {
+  generarPayoutPaypal: async function (token, email, amount) {
 
-    let params = req.body;
-    let modo = params.modo;
+    let modo = 'EMAIL';
     let batch_code = uniqid();
 
     const options = {
@@ -67,7 +73,7 @@ const controller = {
       "path": "/v1/payments/payouts",
       "headers": {
         "accept": "application/json",
-        "authorization": "Bearer A21AAKHcUN0vNear6P5cFcEXQ7j6wzJOqLYrO8G97Xt1d4-ZW1jWCtveQVz_AkC81Xwdtkj61G_qAThMPD5OqhfYCHeqhAGSg",
+        "authorization": "Bearer " + token,
         "content-type": "application/json"
       }
     };
@@ -85,8 +91,7 @@ const controller = {
     });
 
     if (modo == 'EMAIL') {
-      let email = params.email;
-      let monto_a_cobrar = params.value;
+      let monto_a_cobrar = amount;
 
       data.write(JSON.stringify({ 
         sender_batch_header:
@@ -107,10 +112,15 @@ const controller = {
       
       data.end();
 
-      return res.status(200).send({
-        status : 'success',
-        message: 'Pago realizado a : ' + email
-      });
+      // return res.status(200).send({
+      //   status : 'success',
+      //   message: 'Pago realizado a : ' + email
+      // });
+
+      return {
+        status: "success",
+        message: email,
+      };
     }
 
   }
