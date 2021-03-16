@@ -38,8 +38,8 @@ paypal.configure({
 
 app.post('/pay', (req, res) => {
 
-  amount = req.body.price;
-  email = req.body.email;
+  amount = req.query.price;
+  email = req.query.email;
 
   const create_payment_json = {
     "intent": "sale",
