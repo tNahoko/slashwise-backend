@@ -103,7 +103,7 @@ const controller = {
         items: [{
           amount: { 
             value: monto_a_cobrar, 
-            currency: "USD" 
+            currency: "JPY" 
           },
           receiver: email,
           note: 'Pago desde el backend con node, token working'

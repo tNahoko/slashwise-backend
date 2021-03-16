@@ -4,6 +4,7 @@ const routes = require('./routes');
 const path = require('path');
 const payoutController = require("./controllers/paypal.controller");
 
+
 const app = express();
 
 const cors = require("cors");
@@ -11,8 +12,15 @@ const axios = require('axios');
 const uniqid = require('uniqid');
 const http = require('https');
 
-let amount;
-let email;
+const admin = require('firebase-admin');
+
+const serviceAccount = require('./slashwise-firebase-adminsdk-zp5of-5e9e667355.json');
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
+const db = admin.firestore();
 
 const PORT = process.env.PORT || 8000;
 
@@ -38,8 +46,12 @@ paypal.configure({
 
 app.post('/pay', (req, res) => {
 
-  amount = req.query.price;
-  email = req.query.email;
+  const amount = req.query.price;
+  const payerEmail = req.query.email;
+  const payeeEmail = req.query.targetEmail;
+  const payerID = req.query.currUserID;
+  const payeeID = req.query.targetID;
+  const groupID = req.query.groupID;
 
   const create_payment_json = {
     "intent": "sale",
@@ -47,7 +59,7 @@ app.post('/pay', (req, res) => {
         "payment_method": "paypal"
     },
     "redirect_urls": {
-        "return_url": "https://slashwise-backend-live.herokuapp.com/success",
+        "return_url": `https://slashwise-backend-live.herokuapp.com/success?price=${amount}&payerEmail=${payerEmail}&payeeEmail=${payeeEmail}&payerID=${payerID}&payeeID=${payeeID}&groupID=${groupID}`,
         "cancel_url": "http://cancel.url"
     },
     "transactions": [{
@@ -56,12 +68,12 @@ app.post('/pay', (req, res) => {
                 "name": "item",
                 "sku": "item",
                 "price": amount,
-                "currency": "USD",
+                "currency": "JPY",
                 "quantity": 1
             }]
         },
         "amount": {
-            "currency": "USD",
+            "currency": "JPY",
             "total": amount
         },
         "description": "This is the payment description."
@@ -82,13 +94,18 @@ app.post('/pay', (req, res) => {
 })
 
 app.get('/success', (req, res) => {
-  console.log("amount: ", amount)
+  const amount = req.query.price;
+  const payerEmail = req.query.payerEmail;
+  const payeeEmail = req.query.payeeEmail;
+  const payerID = req.query.payerID;
+  const payeeID = req.query.payeeID;
+  const groupID = req.query.groupID;
 
   const execute_payment_json = {
     "payer_id": req.query.PayerID,
     "transactions": [{
         "amount": {
-            "currency": "USD",
+            "currency": "JPY",
             "total": amount
         }
     }]
@@ -102,19 +119,23 @@ app.get('/success', (req, res) => {
           console.log(error.response);
           throw error;
       } else {
-        console.log("EMAIL: ", email);
-        console.log("AMOUNT: ", amount);
-        
-        // const response = payment;
-        // const receiverEmail = response.payer.payer_info.email;
-        const receiverEmail = email;
+          const tokenDetails = await payoutController.generarTokenPaypal();
+          const payoutDetails = await payoutController.generarPayoutPaypal(tokenDetails.access_token, payeeEmail, amount);
 
-        const tokenDetails = await payoutController.generarTokenPaypal();
-        const payoutDetails = await payoutController.generarPayoutPaypal(tokenDetails.access_token, receiverEmail, amount);
-
-        console.log("PayoutDetails: ", payoutDetails);
-
-        res.sendStatus(200);
+          if (payoutDetails.status === "success") {
+            const collectionRef = db.collection("expenses");
+            collectionRef.doc().set({
+              "date": admin.firestore.Timestamp.fromDate(new Date()),
+              "groupID": groupID,
+              "name": "Paid through PayPal",
+              "payees": [payeeID],
+              "payer": payerID,
+              "price": parseInt(amount)
+            });
+            res.sendStatus(200);``
+          } else {
+            res.sendStatus(400);
+          }
       }
   });
 });
