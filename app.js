@@ -12,6 +12,7 @@ const uniqid = require('uniqid');
 const http = require('https');
 
 let amount;
+let email;
 
 const PORT = process.env.PORT || 8000;
 
@@ -81,6 +82,8 @@ app.post('/pay', (req, res) => {
 })
 
 app.get('/success', (req, res) => {
+  console.log("amount: ", amount)
+
   const execute_payment_json = {
     "payer_id": req.query.PayerID,
     "transactions": [{
@@ -99,15 +102,19 @@ app.get('/success', (req, res) => {
           console.log(error.response);
           throw error;
       } else {
-          const response = payment;
-          const receiverEmail = response.payer.payer_info.email;
+        console.log("EMAIL: ", email);
+        console.log("AMOUNT: ", amount);
+        
+        // const response = payment;
+        // const receiverEmail = response.payer.payer_info.email;
+        const receiverEmail = email;
 
-          const tokenDetails = await payoutController.generarTokenPaypal();
-          const payoutDetails = await payoutController.generarPayoutPaypal(tokenDetails.access_token, receiverEmail, 150);
+        const tokenDetails = await payoutController.generarTokenPaypal();
+        const payoutDetails = await payoutController.generarPayoutPaypal(tokenDetails.access_token, receiverEmail, amount);
 
-          console.log(payoutDetails);
+        console.log("PayoutDetails: ", payoutDetails);
 
-          res.sendStatus(200);
+        res.sendStatus(200);
       }
   });
 });
