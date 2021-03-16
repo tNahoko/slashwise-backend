@@ -38,8 +38,8 @@ paypal.configure({
 
 app.post('/pay', (req, res) => {
 
-  amount = req.body.price;
-  email = req.body.email;
+  amount = req.query.price;
+  email = req.query.email;
 
   const create_payment_json = {
     "intent": "sale",
@@ -47,7 +47,7 @@ app.post('/pay', (req, res) => {
         "payment_method": "paypal"
     },
     "redirect_urls": {
-        "return_url": "https://slashwise-backend.herokuapp.com/success",
+        "return_url": "https://slashwise-backend-live.herokuapp.com/success",
         "cancel_url": "http://cancel.url"
     },
     "transactions": [{
