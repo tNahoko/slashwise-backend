@@ -47,7 +47,7 @@ app.post('/pay', (req, res) => {
         "payment_method": "paypal"
     },
     "redirect_urls": {
-        "return_url": "http://10.0.2.2:8000/success",
+        "return_url": "https://slashwise-backend.herokuapp.com/success",
         "cancel_url": "http://cancel.url"
     },
     "transactions": [{
